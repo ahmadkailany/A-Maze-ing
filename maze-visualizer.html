@@ -1,1 +1,966 @@
-PCFET0NUWVBFIGh0bWw+CjxodG1sIGxhbmc9ImVuIiBkYXRhLXRoZW1lPSJkYXJrIj4KPGhlYWQ+CjxtZXRhIGNoYXJzZXQ9IlVURi04Ij4KPG1ldGEgbmFtZT0idmlld3BvcnQiIGNvbnRlbnQ9IndpZHRoPWRldmljZS13aWR0aCwgaW5pdGlhbC1zY2FsZT0xLjAiPgo8dGl0bGU+QS1NYXplLWluZyBWaXN1YWxpemVyPC90aXRsZT4KPGxpbmsgcmVsPSJwcmVjb25uZWN0IiBocmVmPSJodHRwczovL2ZvbnRzLmdvb2dsZWFwaXMuY29tIj4KPGxpbmsgcmVsPSJwcmVjb25uZWN0IiBocmVmPSJodHRwczovL2ZvbnRzLmdzdGF0aWMuY29tIiBjcm9zc29yaWdpbj4KPGxpbmsgaHJlZj0iaHR0cHM6Ly9mb250cy5nb29nbGVhcGlzLmNvbS9jc3MyP2ZhbWlseT1KZXRCcmFpbnMrTW9ubzp3Z2h0QDQwMDs2MDA7NzAwJmZhbWlseT1JbnRlcjp3Z2h0QDQwMDs1MDA7NjAwJmRpc3BsYXk9c3dhcCIgcmVsPSJzdHlsZXNoZWV0Ij4KPHNjcmlwdD4KLyogSW5qZWN0IHByZWZlcnJlZCBmb250IGJlZm9yZSBwYWdlIGxvYWQgKi8KPC9zY3JpcHQ+Cjwvc3R5bGU+Cjwvc2NyaXB0Pgo8L2hlYWQ+Cjxib2R5Pgo8cD5QbGFjZWhvbGRlciAtIHNlZSBtYXplLXZpc3VhbGl6ZXIuaHRtbCBpbiByZWxlYXNlczwvcD4KPC9ib2R5Pgo8L2h0bWw+
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A-Maze-ing Visualizer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --font-display:'JetBrains Mono',monospace;--font-body:'Inter',sans-serif;
+  --text-xs:clamp(.75rem,.7rem + .25vw,.875rem);--text-sm:clamp(.875rem,.8rem + .35vw,1rem);
+  --text-base:clamp(1rem,.95rem + .25vw,1.125rem);--text-lg:clamp(1.125rem,1rem + .75vw,1.5rem);
+  --space-1:.25rem;--space-2:.5rem;--space-3:.75rem;--space-4:1rem;
+  --space-5:1.25rem;--space-6:1.5rem;--space-8:2rem;--space-16:4rem;
+  --radius-sm:.375rem;--radius-md:.5rem;--radius-lg:.75rem;--radius-full:9999px;
+  --transition:180ms cubic-bezier(0.16,1,0.3,1);
+}
+[data-theme="dark"] {
+  --bg:#0d0d0f;--surface:#131316;--surface-2:#18181c;--surface-3:#1e1e24;
+  --border:rgba(255,255,255,.07);--border-2:rgba(255,255,255,.12);
+  --text:#e8e8f0;--text-muted:#6b6b80;--text-faint:#3a3a4a;
+  --accent:#00d4aa;--accent-dim:rgba(0,212,170,.12);--accent-glow:0 0 20px rgba(0,212,170,.25);
+  --player:#f5a623;--player-dim:rgba(245,166,35,.15);
+  --path-color:#7c6af7;--wall-42:rgba(0,212,170,.22);
+  --cell-empty:#0f0f14;--cell-start:rgba(0,212,170,.28);--cell-end:rgba(245,85,85,.28);
+  --shadow-sm:0 1px 3px rgba(0,0,0,.4);--shadow-md:0 4px 16px rgba(0,0,0,.5);--shadow-lg:0 12px 40px rgba(0,0,0,.6);
+}
+[data-theme="light"] {
+  --bg:#f5f5f7;--surface:#fff;--surface-2:#f0f0f5;--surface-3:#e8e8ef;
+  --border:rgba(0,0,0,.08);--border-2:rgba(0,0,0,.14);
+  --text:#1a1a2e;--text-muted:#6b6b80;--text-faint:#b0b0c0;
+  --accent:#00956e;--accent-dim:rgba(0,149,110,.1);--accent-glow:0 0 20px rgba(0,149,110,.2);
+  --player:#e08800;--player-dim:rgba(224,136,0,.12);
+  --path-color:#5b4de0;--wall-42:rgba(0,149,110,.22);
+  --cell-empty:#fafafa;--cell-start:rgba(0,149,110,.2);--cell-end:rgba(220,50,50,.18);
+  --shadow-sm:0 1px 3px rgba(0,0,0,.08);--shadow-md:0 4px 16px rgba(0,0,0,.1);--shadow-lg:0 12px 40px rgba(0,0,0,.15);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-font-smoothing:antialiased}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100dvh;transition:background var(--transition),color var(--transition)}
+button{cursor:pointer;border:none;background:none;font:inherit;color:inherit}
+input,textarea{font:inherit}
+.app{display:grid;grid-template-rows:auto 1fr;min-height:100dvh}
+header{display:flex;align-items:center;justify-content:space-between;padding:var(--space-4) var(--space-8);border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:100}
+.logo{display:flex;align-items:center;gap:var(--space-3);font-family:var(--font-display);font-size:var(--text-lg);font-weight:700;letter-spacing:-.02em}
+.logo-icon{width:36px;height:36px;background:var(--accent);border-radius:var(--radius-md);display:grid;place-items:center;box-shadow:var(--accent-glow)}
+.header-actions{display:flex;gap:var(--space-2);align-items:center}
+.btn-ghost{padding:var(--space-2) var(--space-3);border-radius:var(--radius-md);font-size:var(--text-sm);color:var(--text-muted);transition:background var(--transition),color var(--transition)}
+.btn-ghost:hover{background:var(--surface-2);color:var(--text)}
+.main{display:grid;grid-template-columns:340px 1fr;height:calc(100dvh - 65px);overflow:hidden}
+.sidebar{background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto}
+.sidebar-section{padding:var(--space-6);border-bottom:1px solid var(--border)}
+.sidebar-section:last-child{border-bottom:none}
+.section-label{font-family:var(--font-display);font-size:var(--text-xs);font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);margin-bottom:var(--space-4)}
+.paste-area{width:100%;min-height:130px;background:var(--surface-2);border:1.5px dashed var(--border-2);border-radius:var(--radius-lg);padding:var(--space-4);color:var(--text);font-family:var(--font-display);font-size:var(--text-xs);resize:vertical;outline:none;transition:border-color var(--transition),box-shadow var(--transition);line-height:1.6}
+.paste-area:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim)}
+.paste-area::placeholder{color:var(--text-faint)}
+.btn-primary{width:100%;padding:var(--space-3) var(--space-4);background:var(--accent);color:#000;font-weight:600;font-size:var(--text-sm);border-radius:var(--radius-md);margin-top:var(--space-3);transition:opacity var(--transition),transform var(--transition);box-shadow:var(--accent-glow)}
+.btn-primary:hover{opacity:.88;transform:translateY(-1px)}
+.btn-primary:active{transform:translateY(0)}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-2)}
+.info-card{background:var(--surface-2);border-radius:var(--radius-md);padding:var(--space-3);border:1px solid var(--border)}
+.info-card-label{font-size:var(--text-xs);color:var(--text-muted);margin-bottom:var(--space-1)}
+.info-card-val{font-family:var(--font-display);font-size:var(--text-sm);font-weight:600;color:var(--accent)}
+.controls-grid{display:flex;flex-direction:column;gap:var(--space-2)}
+.ctrl-btn{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-3) var(--space-4);background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-md);font-size:var(--text-sm);color:var(--text);transition:all var(--transition);text-align:left}
+.ctrl-btn:hover{background:var(--surface-3);border-color:var(--border-2)}
+.ctrl-btn:active{transform:scale(.98)}
+.ctrl-btn.active{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
+.ctrl-btn.play-active{background:var(--player-dim);border-color:var(--player);color:var(--player)}
+.ctrl-icon{width:28px;height:28px;border-radius:var(--radius-sm);background:var(--surface-3);display:grid;place-items:center;font-size:14px;flex-shrink:0}
+.speed-row{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-3) var(--space-4);background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-md)}
+.speed-row label{font-size:var(--text-xs);color:var(--text-muted);white-space:nowrap}
+input[type=range]{flex:1;accent-color:var(--accent);height:4px;cursor:pointer}
+.speed-val{font-family:var(--font-display);font-size:var(--text-xs);color:var(--accent);width:32px;text-align:right}
+.legend{display:flex;flex-wrap:wrap;gap:var(--space-2)}
+.legend-item{display:flex;align-items:center;gap:var(--space-2);font-size:var(--text-xs);color:var(--text-muted)}
+.legend-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0}
+.status-bar{margin-top:var(--space-3);padding:var(--space-3) var(--space-4);background:var(--surface-2);border-radius:var(--radius-md);font-family:var(--font-display);font-size:var(--text-xs);color:var(--text-muted);min-height:40px;display:flex;align-items:center;gap:var(--space-2);border:1px solid var(--border)}
+.status-dot{width:8px;height:8px;border-radius:50%;background:var(--text-faint);flex-shrink:0;transition:background var(--transition)}
+.status-dot.ok{background:var(--accent);box-shadow:0 0 6px var(--accent)}
+.status-dot.err{background:#f55;box-shadow:0 0 6px #f55}
+.status-dot.run{background:var(--player);box-shadow:0 0 6px var(--player);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.canvas-wrap{background:var(--bg);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+#maze-canvas{image-rendering:pixelated;border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);max-width:100%;max-height:100%;transition:transform .1s}
+.canvas-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+.empty-state{display:flex;flex-direction:column;align-items:center;gap:var(--space-4);text-align:center;padding:var(--space-16)}
+.empty-icon{font-size:48px;opacity:.3;animation:float 3s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.empty-title{font-family:var(--font-display);font-size:var(--text-lg);color:var(--text-faint)}
+.empty-sub{font-size:var(--text-sm);color:var(--text-faint);max-width:30ch;margin-top:var(--space-2)}
+.kbd-hints{position:absolute;bottom:var(--space-4);left:50%;transform:translateX(-50%);display:flex;gap:var(--space-2);pointer-events:none;opacity:0;transition:opacity var(--transition)}
+.kbd-hints.visible{opacity:1}
+.kbd{background:var(--surface);border:1px solid var(--border-2);border-radius:var(--radius-sm);padding:2px 8px;font-family:var(--font-display);font-size:var(--text-xs);color:var(--text-muted)}
+.toast{position:fixed;bottom:var(--space-6);right:var(--space-6);background:var(--surface-3);border:1px solid var(--border-2);border-radius:var(--radius-lg);padding:var(--space-3) var(--space-5);font-size:var(--text-sm);box-shadow:var(--shadow-lg);z-index:200;transform:translateY(10px);opacity:0;transition:all .3s cubic-bezier(0.16,1,0.3,1);pointer-events:none}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{border-color:var(--accent);color:var(--accent)}
+.toast.error{border-color:#f55;color:#f77}
+.theme-grid{display:flex;flex-wrap:wrap;gap:var(--space-2)}
+.theme-chip{padding:var(--space-2) var(--space-3);background:var(--surface-2);border:1.5px solid var(--border);border-radius:var(--radius-full);font-size:var(--text-xs);cursor:pointer;transition:all var(--transition);white-space:nowrap}
+.theme-chip:hover{background:var(--surface-3);border-color:var(--border-2)}
+.theme-chip.active{border-color:var(--accent);background:var(--accent-dim);color:var(--accent)}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border-2);border-radius:99px}
+@media(max-width:768px){.main{grid-template-columns:1fr;grid-template-rows:auto 1fr}.sidebar{max-height:45vh}header{padding:var(--space-3) var(--space-4)}}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="logo">
+    <div class="logo-icon">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <rect x="2" y="2" width="16" height="16" rx="2" stroke="#000" stroke-width="1.5" fill="none"/>
+        <path d="M2 7h4M8 7h3M13 7h5M2 13h3M7 13h5M14 13h4M7 2v5M13 2v5M5 13v5M15 9v4" stroke="#000" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <span>A&#8209;Maze&#8209;ing</span>
+  </div>
+  <div class="header-actions">
+    <button class="btn-ghost" id="theme-toggle" aria-label="Toggle theme">
+      <svg id="theme-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+  </div>
+</header>
+<div class="main">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="section-label">Maze File Input</div>
+      <textarea class="paste-area" id="hex-input" placeholder="Paste your maze file here...&#10;&#10;Format:&#10;BB955515395395395153&#10;AAA953E9687AC3C6BAD2&#10;...&#10;&#10;0,0&#10;18,12&#10;SSSEENNW..."></textarea>
+      <button class="btn-primary" id="load-btn">&#x25B6; Load Maze</button>
+      <div class="status-bar">
+        <div class="status-dot" id="status-dot"></div>
+        <span id="status-text">Paste your maze file and click Load</span>
+      </div>
+    </div>
+    <div class="sidebar-section" id="info-section" style="display:none">
+      <div class="section-label">Maze Info</div>
+      <div class="info-grid">
+        <div class="info-card"><div class="info-card-label">Width</div><div class="info-card-val" id="info-w">-</div></div>
+        <div class="info-card"><div class="info-card-label">Height</div><div class="info-card-val" id="info-h">-</div></div>
+        <div class="info-card"><div class="info-card-label">Entry</div><div class="info-card-val" id="info-entry">-</div></div>
+        <div class="info-card"><div class="info-card-label">Exit</div><div class="info-card-val" id="info-exit">-</div></div>
+        <div class="info-card"><div class="info-card-label">BFS Path</div><div class="info-card-val" id="info-path">-</div></div>
+        <div class="info-card"><div class="info-card-label">Optimal</div><div class="info-card-val" id="info-optimal">-</div></div>
+        <div class="info-card" style="grid-column:span 2"><div class="info-card-label">3x3 Open Blocks</div><div class="info-card-val" id="info-3x3">-</div></div>
+      </div>
+    </div>
+    <div class="sidebar-section" id="ctrl-section" style="display:none">
+      <div class="section-label">Controls</div>
+      <div class="controls-grid">
+        <button class="ctrl-btn" id="btn-solve"><div class="ctrl-icon">✦</div><span>Auto-Solve (BFS animation)</span></button>
+        <button class="ctrl-btn" id="btn-play"><div class="ctrl-icon">&#x25B6;</div><span>Play Mode — navigate yourself</span></button>
+        <button class="ctrl-btn" id="btn-reset"><div class="ctrl-icon">&#x21BA;</div><span>Reset</span></button>
+        <button class="ctrl-btn" id="btn-gen"><div class="ctrl-icon">&#x2728;</div><span>Replay Generation</span></button>
+        <div class="speed-row">
+          <label for="speed-slider">Speed</label>
+          <input type="range" id="speed-slider" min="1" max="10" value="5">
+          <span class="speed-val" id="speed-val">5</span>
+        </div>
+      </div>
+    </div>
+    <div class="sidebar-section" id="legend-section" style="display:none">
+      <div class="section-label">Legend</div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div>Start</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#f55"></div>Exit</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--path-color)"></div>BFS Path</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--player)"></div>Player</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--wall-42);border:1px solid var(--accent)"></div>"42" Pattern</div>
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="section-label">Theme</div>
+      <div class="theme-grid" id="theme-grid"></div>
+    </div>
+  </aside>
+  <div class="canvas-wrap" id="canvas-wrap">
+    <canvas id="maze-canvas" style="display:none"></canvas>
+    <div class="canvas-overlay" id="empty-overlay">
+      <div class="empty-state">
+        <div class="empty-icon">&#x1F300;</div>
+        <div class="empty-title">No maze loaded</div>
+        <div class="empty-sub">Paste your maze file on the left and click Load Maze</div>
+      </div>
+    </div>
+    <div class="kbd-hints" id="kbd-hints">
+      <span class="kbd">W</span><span class="kbd">A</span><span class="kbd">S</span><span class="kbd">D</span>
+      <span class="kbd" style="padding:2px 10px">or</span>
+      <span class="kbd">&#x2191;</span><span class="kbd">&#x2193;</span><span class="kbd">&#x2190;</span><span class="kbd">&#x2192;</span>
+    </div>
+  </div>
+</div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+/* ── THEME ── */
+const html=document.documentElement;
+let theme='dark';
+const sunSVG='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>';
+const moonSVG='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+document.getElementById('theme-toggle').addEventListener('click',()=>{
+  theme=theme==='dark'?'light':'dark';
+  html.setAttribute('data-theme',theme);
+  document.getElementById('theme-icon').innerHTML=theme==='dark'?moonSVG:sunSVG;
+  if(maze.grid)render();
+});
+
+/* ── TOAST ── */
+function toast(msg,type='success'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast '+type+' show';
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),3200);
+}
+
+/* ── STATUS ── */
+function setStatus(txt,st=''){
+  document.getElementById('status-text').textContent=txt;
+  document.getElementById('status-dot').className='status-dot'+(st?' '+st:'');
+}
+
+/* ── PARSER ── 
+   Format:
+     [hex rows — 2 chars per cell, no spaces]
+     [blank line]
+     [entry x,y]
+     [exit  x,y]
+     [path string — optional]
+*/
+function parseFile(raw){
+  // split on blank line
+  const sections=raw.trim().split(/\n[ \t]*\n/);
+  if(sections.length<2) throw new Error('Missing blank line separator between grid and coordinates');
+
+  // ── grid ──
+  const gridLines=sections[0].trim().split('\n').map(l=>l.trim()).filter(Boolean);
+  if(!gridLines.length) throw new Error('No grid data found');
+
+  const width=gridLines[0].length;   // 1 hex char per cell
+  const height=gridLines.length;
+
+  const grid=[];
+  for(let y=0;y<height;y++){
+    const line=gridLines[y];
+    if(line.length!==width) throw new Error('Inconsistent row length at row '+y+': expected '+width+' got '+line.length);
+    const row=[];
+    for(let x=0;x<width;x++) row.push(parseInt(line[x],16));
+    grid.push(row);
+  }
+
+  // ── meta ──
+  const metaLines=sections[1].trim().split('\n').map(l=>l.trim()).filter(Boolean);
+  if(metaLines.length<2) throw new Error('Need at least ENTRY and EXIT coordinates after blank line');
+
+  const parsePoint=s=>{
+    const parts=s.split(',');
+    if(parts.length!==2) throw new Error('Bad coordinate format: '+s);
+    const x=parseInt(parts[0]),y=parseInt(parts[1]);
+    if(isNaN(x)||isNaN(y)) throw new Error('Non-numeric coordinate: '+s);
+    return[x,y];
+  };
+
+  const entry=parsePoint(metaLines[0]);
+  const exit=parsePoint(metaLines[1]);
+  const savedPath=metaLines[2]||null;
+
+  if(entry[0]<0||entry[0]>=width||entry[1]<0||entry[1]>=height)
+    throw new Error('ENTRY '+entry+' is out of bounds');
+  if(exit[0]<0||exit[0]>=width||exit[1]<0||exit[1]>=height)
+    throw new Error('EXIT '+exit+' is out of bounds');
+
+  return{width,height,grid,entry,exit,savedPath};
+}
+
+
+/* ── 3x3 OPEN CHECK ──
+   A 3x3 open block = all 12 internal passages are open (no walls)
+   bit1=E(right) bit2=S(down)
+*/
+function check3x3Open(grid, w, h) {
+  const violations = [];
+  for (let y = 0; y <= h-3; y++) {
+    for (let x = 0; x <= w-3; x++) {
+      let isOpen = true;
+      // check horizontal passages (E wall = bit1)
+      for (let row = 0; row < 3 && isOpen; row++)
+        for (let col = 0; col < 2 && isOpen; col++)
+          if (grid[y+row][x+col] >> 1 & 1) isOpen = false;
+      // check vertical passages (S wall = bit2)
+      for (let row = 0; row < 2 && isOpen; row++)
+        for (let col = 0; col < 3 && isOpen; col++)
+          if (grid[y+row][x+col] >> 2 & 1) isOpen = false;
+      if (isOpen) violations.push([x, y]);
+    }
+  }
+  return violations;
+}
+
+/* ── BFS ──
+   bit0=N(up) bit1=E(right) bit2=S(down) bit3=W(left)
+*/
+function bfs(grid,entry,ex,w,h){
+  const dirs=[[0,-1,0],[1,0,1],[0,1,2],[-1,0,3]];
+  const q=[[entry,[entry]]];
+  const vis=new Set([entry[0]+','+entry[1]]);
+  while(q.length){
+    const[[x,y],path]=q.shift();
+    if(x===ex[0]&&y===ex[1])return path;
+    for(const[dx,dy,bit]of dirs){
+      const nx=x+dx,ny=y+dy,k=nx+','+ny;
+      if(nx<0||nx>=w||ny<0||ny>=h||vis.has(k))continue;
+      if(grid[y][x]>>bit&1)continue;
+      vis.add(k);q.push([[nx,ny],[...path,[nx,ny]]]);
+    }
+  }
+  return null;
+}
+
+
+
+/* ── STATE & HELPERS ── */
+const canvas=document.getElementById('maze-canvas');
+const ctx=canvas.getContext('2d');
+
+const maze={
+  grid:null,width:0,height:0,entry:null,exit:null,
+  bfsPath:null,violations:[],
+  playerPos:null,playerTrail:[],
+  mode:'idle',animFrame:0,won:false
+};
+let animTimer=null;
+
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+
+function cellSize(){
+  const wrap=document.getElementById('canvas-wrap');
+  return Math.max(4,Math.min(48,Math.floor(Math.min(
+    (wrap.clientWidth-48)/maze.width,
+    (wrap.clientHeight-48)/maze.height
+  ))));
+}
+
+function is42(x,y){return(maze.grid[y][x]&0x0F)===0x0F;}
+
+/* ── THEMES ── */
+const THEMES = {
+  cyber: {
+    name:'🔮 Cyber', bg:'#0d0d0f', cellEmpty:'#0f0f14',
+    cell42:'rgba(0,212,170,.18)', cellStart:'rgba(0,212,170,.28)', cellEnd:'rgba(245,85,85,.28)',
+    wall:'#00d4aa', path:'#7c6af7', border:'rgba(0,212,170,.7)',
+    playerColor:'#f5a623', playerGlow:'#f5a623',
+    entryColor:'#00d4aa', entryLabel:'S', exitColor:'#f55', exitLabel:'E',
+    dots:false,
+  },
+  pacman: {
+    name:'👾 Pac-Man', bg:'#000033', cellEmpty:'#00004a',
+    cell42:'rgba(255,255,0,.08)', cellStart:'rgba(255,255,0,.18)', cellEnd:'rgba(255,0,200,.18)',
+    wall:'#5555ff', path:'#ffff00', border:'#5555ff',
+    playerColor:'#ffff00', playerGlow:'#ffff00', playerEmoji:null, playerShape:'pacman',
+    entryEmoji:'🟡', exitEmoji:'👻',
+    dots:true, dotColor:'rgba(255,255,255,.35)',
+  },
+  minecraft: {
+    name:'⛏️ Minecraft', bg:'#87CEEB', cellEmpty:'#8B6914',
+    cell42:'rgba(34,139,34,.6)', cellStart:'rgba(34,139,34,.8)', cellEnd:'rgba(0,100,200,.5)',
+    wall:'#555555', path:'#FFD700', border:'#333',
+    playerColor:'#ff8c00', playerGlow:'#ffaa00', playerEmoji:'🧑',
+    entryEmoji:'🚪', exitEmoji:'💎',
+    dots:false, blockWalls:true, pixelCells:true,
+    borderGlow:null,
+  },
+  snake: {
+    name:'🐍 Snake', bg:'#000000', cellEmpty:'#0a0a0a',
+    cell42:'rgba(0,200,0,.08)', cellStart:'rgba(0,255,65,.15)', cellEnd:'rgba(255,30,30,.2)',
+    wall:'#00cc33', path:'#00ff41', border:'#00ff41',
+    playerColor:'#00ff41', playerGlow:'#00ff41', playerShape:'square',
+    entryColor:'#00ff41', entryLabel:'▶', exitEmoji:'🍎',
+    dots:false, snakeTrail:true, gridLines:true,
+  },
+  mouse: {
+    name:'🐭 Mouse & Cheese', bg:'#fdf6e3', cellEmpty:'#f5e6c8',
+    cell42:'rgba(139,90,43,.15)', cellStart:'rgba(255,180,0,.22)', cellEnd:'rgba(255,215,0,.35)',
+    wall:'#6B3A00', path:'#e67e22', border:'#6B3A00',
+    playerColor:'#888', playerGlow:'#aaa', playerEmoji:'🐭',
+    entryEmoji:'🐭', exitEmoji:'🧀',
+    dots:false,
+  },
+  ocean: {
+    name:'🌊 Deep Ocean', bg:'#000d1a', cellEmpty:'#001428',
+    cell42:'rgba(0,255,200,.08)', cellStart:'rgba(0,255,200,.2)', cellEnd:'rgba(255,100,0,.2)',
+    wall:'#0099cc', path:'#00e5cc', border:'rgba(0,229,204,.7)',
+    playerColor:'#00e5cc', playerGlow:'#00e5cc', playerEmoji:'🐠',
+    entryEmoji:'🐠', exitEmoji:'🦞',
+    dots:false, bubbles:true,
+  },
+  dungeon: {
+    name:'🔥 Dungeon', bg:'#0d0500', cellEmpty:'#1a0c02',
+    cell42:'rgba(255,80,0,.15)', cellStart:'rgba(255,160,0,.25)', cellEnd:'rgba(255,60,0,.3)',
+    wall:'#cc4400', path:'#ff6600', border:'rgba(255,100,0,.7)',
+    playerColor:'#ffcc00', playerGlow:'#ff6600', playerEmoji:'⚔️',
+    entryEmoji:'🗝️', exitEmoji:'🔥',
+    dots:false,
+  },
+  retro: {
+    name:'💾 Retro CRT', bg:'#050905', cellEmpty:'#080d08',
+    cell42:'rgba(0,255,0,.08)', cellStart:'rgba(0,255,0,.2)', cellEnd:'rgba(0,255,0,.2)',
+    wall:'#00dd00', path:'#00ff00', border:'#00ff00',
+    playerColor:'#00ff00', playerGlow:'#00ff00',
+    entryColor:'#00ff00', entryLabel:'S', exitColor:'#00ff00', exitLabel:'E',
+    dots:false, scanlines:true,
+  },
+};
+
+let currentTheme = THEMES.cyber;
+
+// Build theme chips
+function buildThemeChips() {
+  const grid = document.getElementById('theme-grid');
+  Object.entries(THEMES).forEach(([key, t]) => {
+    const chip = document.createElement('button');
+    chip.className = 'theme-chip' + (key==='cyber'?' active':'');
+    chip.textContent = t.name;
+    chip.dataset.key = key;
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.theme-chip').forEach(c=>c.classList.remove('active'));
+      chip.classList.add('active');
+      currentTheme = THEMES[key];
+      if(maze.grid) render();
+    });
+    grid.appendChild(chip);
+  });
+}
+buildThemeChips();
+
+/* ── THEME-AWARE RENDER ── */
+function render(showPath, player, trail) {
+  if(!maze.grid) return;
+  const t = currentTheme;
+  const cs=cellSize(), W=maze.width*cs, H=maze.height*cs;
+  canvas.width=W; canvas.height=H;
+  canvas.style.display='block';
+  document.getElementById('empty-overlay').style.display='none';
+
+  ctx.fillStyle=t.bg; ctx.fillRect(0,0,W,H);
+
+  // scanlines for retro
+  if(t.scanlines){
+    for(let sy=0;sy<H;sy+=4){
+      ctx.fillStyle='rgba(0,0,0,.25)';ctx.fillRect(0,sy,W,2);
+    }
+  }
+
+  // cell fills
+  for(let y=0;y<maze.height;y++){
+    for(let x=0;x<maze.width;x++){
+      const px=x*cs, py=y*cs;
+      const isEntry=(x===maze.entry[0]&&y===maze.entry[1]);
+      const isExit=(x===maze.exit[0]&&y===maze.exit[1]);
+      const i42=is42(x,y);
+
+      if(t.pixelCells){
+        // ── Minecraft pixel cell ──
+        const cell=maze.grid[y][x];
+        const hasN=!(cell>>0&1), hasE=!(cell>>1&1), hasS=!(cell>>2&1), hasW=!(cell>>3&1);
+        if(isEntry){
+          // grass block top
+          ctx.fillStyle='#5aaa20'; ctx.fillRect(px,py,cs,cs);
+          ctx.fillStyle='#3d8c12'; ctx.fillRect(px,py+Math.floor(cs*.25),cs,Math.floor(cs*.75));
+        } else if(isExit){
+          // water/portal block
+          ctx.fillStyle='#1565c0'; ctx.fillRect(px,py,cs,cs);
+          ctx.fillStyle='#1976d2'; ctx.fillRect(px+2,py+2,cs-4,cs-4);
+          ctx.fillStyle='rgba(100,180,255,.4)'; ctx.fillRect(px,py,cs,Math.floor(cs*.5));
+        } else if(i42){
+          // mossy stone for 42 pattern
+          ctx.fillStyle='#556B2F'; ctx.fillRect(px,py,cs,cs);
+          ctx.fillStyle='rgba(0,0,0,.25)'; ctx.fillRect(px,py,cs,2); ctx.fillRect(px,py,2,cs);
+        } else {
+          // dirt block
+          const shade=((x*13+y*7)%4)*5;
+          ctx.fillStyle=`rgb(${121+shade},${85+shade},${38+shade})`; ctx.fillRect(px,py,cs,cs);
+          // dirt speckles
+          ctx.fillStyle='rgba(0,0,0,.18)';
+          for(let d=0;d<3;d++){
+            ctx.fillRect(px+((x*7+y*5+d*13)%(cs-3)),py+((x*3+y*11+d*9)%(cs-3)),2,2);
+          }
+          // grass top if open north
+          if(hasN){
+            const gh=Math.max(2,Math.floor(cs*.22));
+            ctx.fillStyle='#4a9e1a'; ctx.fillRect(px,py,cs,gh);
+            ctx.fillStyle='#62c222'; ctx.fillRect(px,py,cs,Math.floor(gh*.45));
+            // grass tufts
+            ctx.fillStyle='#52b01e';
+            for(let g=0;g<3;g++){
+              ctx.fillRect(px+Math.floor(cs*.15*g+cs*.1),py,Math.floor(cs*.08),Math.floor(gh*.7));
+            }
+          }
+        }
+        // pixel border between cells (subtle)
+        ctx.fillStyle='rgba(0,0,0,.3)'; ctx.fillRect(px,py,cs,1); ctx.fillRect(px,py,1,cs);
+      } else {
+        // ── Default cell fill ──
+        if(isEntry)            ctx.fillStyle=t.cellStart;
+        else if(isExit)        ctx.fillStyle=t.cellEnd;
+        else if(i42)           ctx.fillStyle=t.cell42;
+        else                   ctx.fillStyle=t.cellEmpty;
+        ctx.fillRect(px,py,cs,cs);
+      }
+
+      // Snake grid lines
+      if(t.gridLines){
+        ctx.strokeStyle='rgba(0,80,0,.4)'; ctx.lineWidth=.5;
+        ctx.strokeRect(px+.5,py+.5,cs-1,cs-1);
+      }
+    }
+  }
+
+  // pac-man dots
+  if(t.dots){
+    ctx.fillStyle=t.dotColor;
+    for(let y=0;y<maze.height;y++){
+      for(let x=0;x<maze.width;x++){
+        if(x===maze.entry[0]&&y===maze.entry[1]) continue;
+        if(x===maze.exit[0]&&y===maze.exit[1]) continue;
+        const r=Math.max(1.5,cs*.07);
+        ctx.beginPath();ctx.arc(x*cs+cs/2,y*cs+cs/2,r,0,Math.PI*2);ctx.fill();
+      }
+    }
+  }
+
+  // BFS path
+  if(showPath&&showPath.length>1){
+    const pc=t.path;
+    showPath.forEach(([px,py])=>{
+      ctx.fillStyle=pc+'22';ctx.fillRect(px*cs,py*cs,cs,cs);
+    });
+    ctx.strokeStyle=pc;ctx.lineWidth=Math.max(2,cs*.2);ctx.lineCap='round';ctx.lineJoin='round';
+    ctx.shadowBlur=8;ctx.shadowColor=pc;
+    ctx.beginPath();ctx.moveTo(showPath[0][0]*cs+cs/2,showPath[0][1]*cs+cs/2);
+    for(let i=1;i<showPath.length;i++)ctx.lineTo(showPath[i][0]*cs+cs/2,showPath[i][1]*cs+cs/2);
+    ctx.stroke();ctx.shadowBlur=0;
+  }
+
+  // player trail
+  if(trail&&trail.length>1){
+    if(t.snakeTrail){
+      // draw snake body as connected filled segments
+      const pad=Math.max(1,Math.floor(cs*.15));
+      for(let i=0;i<trail.length-1;i++){
+        const alpha=Math.max(0.2, i/trail.length);
+        ctx.fillStyle=t.playerColor+Math.floor(alpha*200).toString(16).padStart(2,'0');
+        ctx.fillRect(trail[i][0]*cs+pad, trail[i][1]*cs+pad, cs-pad*2, cs-pad*2);
+      }
+      // glow on recent segments
+      ctx.shadowBlur=8; ctx.shadowColor=t.playerGlow;
+      ctx.fillStyle=t.playerColor+'cc';
+      const last=Math.min(5,trail.length-1);
+      for(let i=trail.length-1-last;i<trail.length-1;i++){
+        ctx.fillRect(trail[i][0]*cs+pad, trail[i][1]*cs+pad, cs-pad*2, cs-pad*2);
+      }
+      ctx.shadowBlur=0;
+    } else {
+      ctx.strokeStyle=t.playerColor+'44';ctx.lineWidth=Math.max(1,cs*.1);
+      ctx.lineCap='round';ctx.setLineDash([cs*.2,cs*.15]);
+      ctx.beginPath();ctx.moveTo(trail[0][0]*cs+cs/2,trail[0][1]*cs+cs/2);
+      for(let i=1;i<trail.length;i++)ctx.lineTo(trail[i][0]*cs+cs/2,trail[i][1]*cs+cs/2);
+      ctx.stroke();ctx.setLineDash([]);
+    }
+  }
+
+  // 3x3 violations
+  if(maze.violations&&maze.violations.length){
+    for(const[vx,vy] of maze.violations){
+      ctx.fillStyle='rgba(255,60,60,.13)';ctx.fillRect(vx*cs,vy*cs,cs*3,cs*3);
+      ctx.strokeStyle='#ff3c3c';ctx.lineWidth=Math.max(1.5,cs*.1);
+      ctx.strokeRect(vx*cs+1,vy*cs+1,cs*3-2,cs*3-2);
+    }
+  }
+
+  // walls
+  const bw = t.blockWalls ? Math.max(2, Math.floor(cs*.28)) : 0;
+  ctx.lineWidth = Math.max(1,cs*.1);
+  for(let y=0;y<maze.height;y++){
+    for(let x=0;x<maze.width;x++){
+      const px=x*cs, py=y*cs, cell=maze.grid[y][x];
+
+      // dirt texture overlay
+      if(t.dirtCells && !is42(x,y) && x!==maze.entry[0]||y!==maze.entry[1]){
+        for(let d=0;d<4;d++){
+          const dx=((x*7+y*3+d*5)%cs*.9)|0;
+          const dy=((x*3+y*11+d*7)%cs*.9)|0;
+          ctx.fillStyle='rgba(0,0,0,.18)';
+          ctx.fillRect(px+dx,py+dy,2,2);
+        }
+      }
+
+      if(t.blockWalls){
+        // draw walls as filled stone blocks
+        const stone1='#888888', stone2='#555555', stone3='#bbbbbb';
+        function stoneBlock(bx,by,bw,bh){
+          // stone base with lighter/darker shading
+          ctx.fillStyle=stone1; ctx.fillRect(bx,by,bw,bh);
+          ctx.fillStyle=stone3; ctx.fillRect(bx,by,bw,Math.floor(bh*.35));
+          ctx.fillStyle=stone2; ctx.fillRect(bx,by+Math.floor(bh*.65),bw,Math.floor(bh*.35));
+          ctx.fillStyle=stone2; ctx.fillRect(bx+Math.floor(bw*.65),by,Math.floor(bw*.35),bh);
+          // pixel border
+          ctx.fillStyle='rgba(0,0,0,.5)';
+          ctx.fillRect(bx,by,bw,1); ctx.fillRect(bx,by,1,bh);
+          // crack details
+          ctx.fillStyle='rgba(0,0,0,.25)';
+          ctx.fillRect(bx+Math.floor(bw*.3),by+Math.floor(bh*.2),1,Math.floor(bh*.35));
+          ctx.fillRect(bx+Math.floor(bw*.6),by+Math.floor(bh*.5),1,Math.floor(bh*.3));
+        }
+        if(cell>>0&1) stoneBlock(px, py,      cs, bw);        // N = top
+        if(cell>>1&1) stoneBlock(px+cs-bw, py, bw, cs);       // E = right
+        if(cell>>2&1) stoneBlock(px, py+cs-bw, cs, bw);       // S = bottom
+        if(cell>>3&1) stoneBlock(px, py,      bw, cs);        // W = left
+      } else {
+        ctx.strokeStyle=t.wall; ctx.beginPath();
+        if(cell>>0&1){ctx.moveTo(px,py);ctx.lineTo(px+cs,py);}
+        if(cell>>1&1){ctx.moveTo(px+cs,py);ctx.lineTo(px+cs,py+cs);}
+        if(cell>>2&1){ctx.moveTo(px,py+cs);ctx.lineTo(px+cs,py+cs);}
+        if(cell>>3&1){ctx.moveTo(px,py);ctx.lineTo(px,py+cs);}
+        ctx.stroke();
+      }
+    }
+  }
+
+  // border
+  ctx.strokeStyle=t.border;ctx.lineWidth=Math.max(1.5,cs*.1);
+  ctx.shadowBlur=t.borderGlow?14:6;ctx.shadowColor=t.borderGlow||t.border;
+  ctx.strokeRect(1,1,W-2,H-2);ctx.shadowBlur=0;
+
+  // entry marker
+  drawMarker(maze.entry[0],maze.entry[1],cs,t.entryEmoji,t.entryColor||t.path,t.entryLabel||'S');
+  // exit marker
+  drawMarker(maze.exit[0],maze.exit[1],cs,t.exitEmoji,t.exitColor||'#f55',t.exitLabel||'E');
+
+  // player
+  if(player){
+    const[px,py]=player;
+    drawPlayer(px,py,cs,t);
+  }
+}
+
+function drawMarker(x,y,cs,emoji,color,label){
+  const cx=x*cs+cs/2,cy=y*cs+cs/2;
+  if(emoji&&cs>=16){
+    ctx.font=Math.max(10,cs*.55)+'px serif';
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(emoji,cx,cy);
+  } else {
+    const r=cs*.35;
+    ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);
+    ctx.fillStyle=color+'33';ctx.fill();
+    ctx.strokeStyle=color;ctx.lineWidth=Math.max(1.5,cs*.1);ctx.stroke();
+    if(cs>=14&&label){
+      ctx.fillStyle=color;
+      ctx.font='bold '+Math.max(8,Math.floor(cs*.36))+'px JetBrains Mono,monospace';
+      ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(label,cx,cy);
+    }
+  }
+}
+
+function drawPlayer(x,y,cs,t){
+  const cx=x*cs+cs/2,cy=y*cs+cs/2;
+  if(t.playerEmoji&&cs>=14){
+    ctx.font=Math.max(10,cs*.6)+'px serif';
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(t.playerEmoji,cx,cy);
+  } else if(t.playerShape==='pacman'){
+    ctx.beginPath();ctx.moveTo(cx,cy);
+    ctx.arc(cx,cy,cs*.32,0.25,Math.PI*1.75);ctx.closePath();
+    ctx.shadowBlur=12;ctx.shadowColor=t.playerColor;
+    ctx.fillStyle=t.playerColor;ctx.fill();ctx.shadowBlur=0;
+  } else if(t.playerShape==='square'){
+    // snake head — bright green square with eyes
+    const pad=Math.max(1,Math.floor(cs*.12));
+    const sz=cs-pad*2;
+    ctx.shadowBlur=16;ctx.shadowColor=t.playerGlow;
+    ctx.fillStyle=t.playerColor;ctx.fillRect(x*cs+pad,y*cs+pad,sz,sz);
+    ctx.shadowBlur=0;
+    // eyes
+    const ey=y*cs+pad+Math.floor(sz*.28);
+    const er=Math.max(1.5,cs*.08);
+    ctx.fillStyle='#000';
+    ctx.beginPath();ctx.arc(x*cs+pad+Math.floor(sz*.3),ey,er,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(x*cs+pad+Math.floor(sz*.7),ey,er,0,Math.PI*2);ctx.fill();
+    // white shine on eyes
+    ctx.fillStyle='#fff';
+    ctx.beginPath();ctx.arc(x*cs+pad+Math.floor(sz*.3)-1,ey-1,Math.max(1,er*.5),0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(x*cs+pad+Math.floor(sz*.7)-1,ey-1,Math.max(1,er*.5),0,Math.PI*2);ctx.fill();
+  } else {
+    const r=cs*.3;
+    ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);
+    ctx.shadowBlur=14;ctx.shadowColor=t.playerGlow||t.playerColor;
+    ctx.fillStyle=t.playerColor;ctx.fill();ctx.shadowBlur=0;
+  }
+}
+
+/* ── LOAD ── */
+document.getElementById('load-btn').addEventListener('click',()=>{
+  const raw=document.getElementById('hex-input').value;
+  if(!raw.trim()){setStatus('Nothing to load','err');return;}
+  try{
+    const p=parseFile(raw);
+    Object.assign(maze,{grid:p.grid,width:p.width,height:p.height,
+      entry:p.entry,exit:p.exit,bfsPath:null,
+      playerPos:[...p.entry],playerTrail:[[...p.entry]],mode:'idle',animFrame:0,won:false});
+    if(animTimer){clearTimeout(animTimer);animTimer=null;}
+
+    const path=bfs(p.grid,p.entry,p.exit,p.width,p.height);
+    maze.bfsPath=path;
+
+    document.getElementById('info-w').textContent=p.width;
+    document.getElementById('info-h').textContent=p.height;
+    document.getElementById('info-entry').textContent=p.entry.join(',');
+    document.getElementById('info-exit').textContent=p.exit.join(',');
+    document.getElementById('info-path').textContent=path?(path.length-1)+' steps':'None';
+    document.getElementById('info-optimal').textContent=p.savedPath?p.savedPath.length+' chars':'—';
+
+    // 3x3 check
+    const violations=check3x3Open(p.grid,p.width,p.height);
+    maze.violations=violations;
+    const v3=document.getElementById('info-3x3');
+    if(violations.length){
+      v3.textContent=violations.length+' found ⚠️';
+      v3.style.color='#f55';
+    } else {
+      v3.textContent='None ✓';
+      v3.style.color='var(--accent)';
+    }
+
+    ['info-section','ctrl-section','legend-section'].forEach(id=>
+      document.getElementById(id).style.display='block');
+    resetBtns();render();
+    setStatus('Loaded '+p.width+'x'+p.height+' maze — '+p.height+' rows','ok');
+    toast('Maze loaded!');
+  }catch(e){setStatus('Error: '+e.message,'err');toast(e.message,'error');}
+});
+
+/* ── CONTROLS ── */
+function resetBtns(){
+  document.getElementById('btn-solve').classList.remove('active');
+  document.getElementById('btn-play').classList.remove('active','play-active');
+  document.getElementById('kbd-hints').classList.remove('visible');
+  maze.mode='idle';
+}
+
+document.getElementById('btn-solve').addEventListener('click',()=>{
+  if(!maze.grid)return;
+  if(animTimer){clearTimeout(animTimer);animTimer=null;}
+  resetBtns();
+  if(!maze.bfsPath){toast('No path found!','error');return;}
+  maze.mode='solve';maze.animFrame=0;
+  document.getElementById('btn-solve').classList.add('active');
+  setStatus('Solving...','run');
+  (function step(){
+    const i=maze.animFrame,path=maze.bfsPath;
+    if(i>=path.length){
+      setStatus('Solved! '+(path.length-1)+' steps ✦','ok');
+      toast('Solved in '+(path.length-1)+' steps ✦');
+      document.getElementById('btn-solve').classList.remove('active');
+      render(null, path[path.length-1], path);
+      return;
+    }
+    render(null, path[i], path.slice(0,i+1));
+    maze.animFrame++;
+    animTimer=setTimeout(step,Math.round(300/parseInt(document.getElementById('speed-slider').value)));
+  })();
+});
+
+
+document.getElementById('btn-play').addEventListener('click',()=>{
+  if(!maze.grid)return;
+  if(animTimer){clearTimeout(animTimer);animTimer=null;}
+  const was=maze.mode==='play';
+  resetBtns();
+  if(was){render();return;}
+  maze.mode='play';maze.playerPos=[...maze.entry];
+  maze.playerTrail=[[...maze.entry]];maze.won=false;
+  document.getElementById('btn-play').classList.add('active','play-active');
+  document.getElementById('kbd-hints').classList.add('visible');
+  setStatus('Use arrow keys or WASD to navigate','run');
+  render(null,maze.playerPos,maze.playerTrail);
+});
+
+document.getElementById('btn-reset').addEventListener('click',()=>{
+  if(!maze.grid)return;
+  if(animTimer){clearTimeout(animTimer);animTimer=null;}
+  resetBtns();
+  maze.playerPos=[...maze.entry];maze.playerTrail=[[...maze.entry]];maze.won=false;
+  render();setStatus('Reset','ok');
+});
+
+document.getElementById('speed-slider').addEventListener('input',e=>{
+  document.getElementById('speed-val').textContent=e.target.value;
+});
+
+/* ── KEYBOARD ── */
+const dirMap={ArrowUp:[0,-1,0],ArrowDown:[0,1,2],ArrowRight:[1,0,1],ArrowLeft:[-1,0,3],
+              w:[0,-1,0],s:[0,1,2],d:[1,0,1],a:[-1,0,3]};
+document.addEventListener('keydown',e=>{
+  if(maze.mode!=='play'||maze.won)return;
+  const dir=dirMap[e.key];if(!dir)return;
+  e.preventDefault();
+  const[dx,dy,bit]=dir,[px,py]=maze.playerPos;
+  if(maze.grid[py][px]>>bit&1){
+    canvas.style.transform='translate('+(dx*3)+'px,'+(dy*3)+'px)';
+    setTimeout(()=>{canvas.style.transform='';},100);
+    return;
+  }
+  const nx=px+dx,ny=py+dy;
+  if(nx<0||nx>=maze.width||ny<0||ny>=maze.height)return;
+  maze.playerPos=[nx,ny];maze.playerTrail.push([nx,ny]);
+  if(nx===maze.exit[0]&&ny===maze.exit[1]){
+    maze.won=true;render(null,[nx,ny],maze.playerTrail);
+    const steps=maze.playerTrail.length-1;
+    const opt=maze.bfsPath?maze.bfsPath.length-1:null;
+    const extra=opt?' (optimal: '+opt+')':'';
+    setStatus('You escaped! '+steps+' steps'+extra,'ok');
+    toast('You escaped in '+steps+' steps!');
+    document.getElementById('kbd-hints').classList.remove('visible');
+    document.getElementById('btn-play').classList.remove('active','play-active');
+    maze.mode='idle';return;
+  }
+  render(null,maze.playerPos,maze.playerTrail);
+});
+
+window.addEventListener('resize',()=>{
+  if(maze.grid)render(
+    maze.mode==='solve'?maze.bfsPath?.slice(0,maze.animFrame):null,
+    maze.mode==='play'?maze.playerPos:null,
+    maze.mode==='play'?maze.playerTrail:null
+  );
+});
+
+/* ── GENERATION ANIMATION ──
+   Reconstruct the DFS carving order from the final grid,
+   then animate wall removal step by step.
+*/
+function reconstructGenSteps(grid, entry, w, h) {
+  // bit0=N bit1=E bit2=S bit3=W, opposite bits
+  const dirs = [[0,-1,0,2],[1,0,1,3],[0,1,2,0],[-1,0,3,1]];
+  const steps = []; // each step: {x,y,nx,ny} = remove wall between these two cells
+  const visited = Array.from({length:h}, ()=>new Array(w).fill(false));
+
+  function dfs(x, y) {
+    visited[y][x] = true;
+    // shuffle dirs deterministically using cell value as seed
+    const order = [0,1,2,3].sort(()=> (grid[y][x] * (x+1) * (y+1)) % 7 - 3);
+    for (const i of order) {
+      const [dx,dy,bit,opp] = dirs[i];
+      const nx=x+dx, ny=y+dy;
+      if(nx<0||nx>=w||ny<0||ny>=h) continue;
+      if(visited[ny][nx]) continue;
+      // check if passage exists in final grid (wall bit NOT set)
+      if(grid[y][x]>>bit&1) continue; // wall exists → not carved this direction
+      steps.push({x,y,nx,ny,bit,opp});
+      dfs(nx,ny);
+    }
+  }
+  dfs(entry[0], entry[1]);
+  return steps;
+}
+
+function renderGen(carved, w, h) {
+  if(!maze.grid) return;
+  const cs=cellSize(), W=w*cs, H=h*cs;
+  canvas.width=W; canvas.height=H;
+  canvas.style.display='block';
+  document.getElementById('empty-overlay').style.display='none';
+
+  ctx.fillStyle=css('--bg'); ctx.fillRect(0,0,W,H);
+
+  // all cells start dark (uncarved)
+  for(let y=0;y<h;y++){
+    for(let x=0;x<w;x++){
+      const inCarved = carved.has(x+','+y);
+      ctx.fillStyle = inCarved ? css('--cell-empty') : '#07070a';
+      ctx.fillRect(x*cs, y*cs, cs, cs);
+    }
+  }
+
+  // draw walls only for carved cells using FINAL grid walls
+  ctx.lineWidth=Math.max(1,cs*.08);
+  for(let y=0;y<h;y++){
+    for(let x=0;x<w;x++){
+      if(!carved.has(x+','+y)) continue;
+      const px=x*cs,py=y*cs,cell=maze.grid[y][x];
+      ctx.strokeStyle=css('--border-2'); ctx.beginPath();
+      if(cell>>0&1){ctx.moveTo(px,py);ctx.lineTo(px+cs,py);}
+      if(cell>>1&1){ctx.moveTo(px+cs,py);ctx.lineTo(px+cs,py+cs);}
+      if(cell>>2&1){ctx.moveTo(px,py+cs);ctx.lineTo(px+cs,py+cs);}
+      if(cell>>3&1){ctx.moveTo(px,py);ctx.lineTo(px,py+cs);}
+      ctx.stroke();
+    }
+  }
+
+  // outer border
+  ctx.strokeStyle=css('--accent')+'44'; ctx.lineWidth=Math.max(1.5,cs*.1);
+  ctx.strokeRect(1,1,W-2,H-2);
+}
+
+document.getElementById('btn-gen').addEventListener('click',()=>{
+  if(!maze.grid) return;
+  if(animTimer){clearTimeout(animTimer);animTimer=null;}
+  resetBtns();
+
+  const steps = reconstructGenSteps(maze.grid, maze.entry, maze.width, maze.height);
+  const carved = new Set();
+  carved.add(maze.entry[0]+','+maze.entry[1]);
+  let i = 0;
+
+  document.getElementById('btn-gen').classList.add('active');
+  setStatus('Generating maze...','run');
+
+  // highlight current carving cell
+  let currentCell = null;
+
+  function step() {
+    if(i >= steps.length) {
+      // done — draw final maze
+      render();
+      document.getElementById('btn-gen').classList.remove('active');
+      setStatus('Generation complete! '+steps.length+' passages carved','ok');
+      return;
+    }
+    const {x,y,nx,ny} = steps[i];
+    carved.add(nx+','+ny);
+    currentCell = [nx,ny];
+    renderGen(carved, maze.width, maze.height);
+
+    // draw current carving cell with glow
+    const cs=cellSize();
+    const cx=nx*cs+cs/2, cy=ny*cs+cs/2, r=cs*.28;
+    ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2);
+    ctx.shadowBlur=12; ctx.shadowColor=css('--accent');
+    ctx.fillStyle=css('--accent')+'cc'; ctx.fill(); ctx.shadowBlur=0;
+
+    i++;
+    const speed=parseInt(document.getElementById('speed-slider').value);
+    animTimer=setTimeout(step, Math.max(1, Math.round(80/speed)));
+  }
+  step();
+});
+
+</script>
+
+<footer style="text-align:center;padding:12px 24px;background:var(--surface);border-top:1px solid var(--border);font-size:.75rem;color:var(--text-muted);font-family:var(--font-display);">
+  Made with <span style="color:#f55">&#9829;</span> by
+  <a href="https://ahmadkailany.com" target="_blank" rel="noopener"
+     style="color:var(--accent);text-decoration:none;font-weight:600;">Ahmad Kailany</a>
+  &nbsp;&#183;&nbsp;
+  <a href="https://github.com/ahmadkailany/A-Maze-ing" target="_blank" rel="noopener"
+     style="color:var(--text-muted);text-decoration:none;">
+    &#x2605; GitHub
+  </a>
+</footer>
+</body>
+</html>
