@@ -1,6 +1,6 @@
-# 🌀 A-Maze-ing
+# 🌀 A-Maze-ing Viewer
 
-> A beautiful browser-based maze visualizer built for the **42 School `so_long`** project.  
+> A beautiful browser-based maze visualizer built for the **42 School `A-Maze-ing`** project.  
 > Zero dependencies. Just open the HTML file in your browser.
 
 ---
